@@ -361,3 +361,48 @@ input {
 button {
   border-radius: 10px !important;
 }
+
+/* Make all cards equal height */
+.product-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* Fix image size */
+.image-container {
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.product-image {
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* Fix title height */
+.product-title {
+  font-size: 16px;
+  height: 40px;
+  overflow: hidden;
+}
+
+/* Fix description height */
+.product-description {
+  font-size: 14px;
+  height: 60px;
+  overflow: hidden;
+  color: gray;
+}
+
+.out-of-stock {
+  color: red;
+  font-weight: bold;
+}
+
+.in-stock {
+  color: green;
+  font-weight: bold;
+}

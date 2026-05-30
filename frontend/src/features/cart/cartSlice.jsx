@@ -6,74 +6,57 @@ const initialState = {
 
 const cartSlice = createSlice({
   name: "cart",
-
   initialState,
 
   reducers: {
-
+    // ADD TO CART (MERGE QUANTITY PROPERLY)
     addToCart: (state, action) => {
-
       const item = action.payload;
 
-      const existItem = state.cartItems.find(
+      const exist = state.cartItems.find(
         (x) => x._id === item._id
       );
 
-      if (existItem) {
-
-        existItem.qty += 1;
-
+      if (exist) {
+        exist.qty += item.qty; // IMPORTANT FIX
       } else {
-
         state.cartItems.push({
           ...item,
-          qty: 1,
+          qty: item.qty || 1,
         });
       }
     },
 
-    increaseQty: (state, action) => {
-
-      const item = state.cartItems.find(
-        (x) => x._id === action.payload
-      );
-
-      if (item) {
-        item.qty += 1;
-      }
-    },
-
-    decreaseQty: (state, action) => {
-
-      const item = state.cartItems.find(
-        (x) => x._id === action.payload
-      );
-
-      if (item && item.qty > 1) {
-        item.qty -= 1;
-      }
-    },
-
+    // REMOVE FULL ITEM
     removeFromCart: (state, action) => {
-
       state.cartItems = state.cartItems.filter(
         (x) => x._id !== action.payload
       );
     },
 
-    clearCart: (state) => {
+    // DECREASE SINGLE QUANTITY (NEW FEATURE)
+    decreaseQty: (state, action) => {
+      const item = state.cartItems.find(
+        (x) => x._id === action.payload
+      );
 
-      state.cartItems = [];
+      if (item) {
+        item.qty -= 1;
+
+        if (item.qty <= 0) {
+          state.cartItems = state.cartItems.filter(
+            (x) => x._id !== action.payload
+          );
+        }
+      }
     },
   },
 });
 
 export const {
   addToCart,
-  increaseQty,
-  decreaseQty,
   removeFromCart,
-  clearCart,
+  decreaseQty,
 } = cartSlice.actions;
 
 export default cartSlice.reducer;

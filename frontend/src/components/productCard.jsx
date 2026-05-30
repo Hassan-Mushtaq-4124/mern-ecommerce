@@ -6,10 +6,26 @@ import { toast } from "react-toastify";
 const ProductCard = ({ product }) => {
   const dispatch = useDispatch();
 
-  const addToCartHandler = () => {
+const addToCartHandler = async () => {
+  try {
+    if (product.stock <= 0) {
+      toast.error("Out of stock!");
+      return;
+    }
+
+    await API.put(`/products/reduce/${product._id}`);
+
     dispatch(addToCart(product));
+
     toast.success("Added to cart!");
-  };
+
+    // optional: reload page data sync (simple solution)
+    window.location.reload();
+
+  } catch (error) {
+    toast.error("Error updating stock");
+  }
+};
 
   return (
     <div className="card product-card">

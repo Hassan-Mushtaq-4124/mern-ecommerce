@@ -1,20 +1,48 @@
+import { useSelector, useDispatch } from "react-redux";
 import {
   removeFromCart,
-  increaseQty,
   decreaseQty,
 } from "../features/cart/cartSlice";
-
-import { useDispatch, useSelector } from "react-redux";
-
+import API from "../services/api";
+import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
 
 const Cart = () => {
-
   const dispatch = useDispatch();
 
   const cartItems = useSelector(
     (state) => state.cart.cartItems
   );
+
+  // REMOVE FULL ITEM (RESTORE FULL QTY)
+  const removeItemHandler = async (item) => {
+    try {
+      await API.put(`/products/restore/${item._id}`, {
+        qty: item.qty,
+      });
+
+      dispatch(removeFromCart(item._id));
+
+      toast.success("Item removed");
+    } catch (err) {
+      toast.error("Error removing item");
+    }
+  };
+
+  // REMOVE SINGLE QUANTITY
+  const decreaseItemHandler = async (item) => {
+    try {
+      await API.put(`/products/restore/${item._id}`, {
+        qty: 1,
+      });
+
+      dispatch(decreaseQty(item._id));
+
+      toast.success("Item quantity decreased");
+    } catch (err) {
+      toast.error("Error updating item");
+    }
+  };
 
   const totalPrice = cartItems.reduce(
     (acc, item) =>
@@ -23,86 +51,56 @@ const Cart = () => {
   );
 
   return (
-    <div className="container py-5">
-
-      <h2 className="section-title">
-        Shopping Cart
-      </h2>
+    <div className="container mt-4">
+      <h2>Your Cart</h2>
 
       {cartItems.map((item) => (
+        <div key={item._id} className="card p-3 mb-3">
 
-        <div
-          key={item._id}
-          className="cart-item"
-        >
+          <h5>{item.name}</h5>
 
-          <div>
+          <p>
+            Quantity: <b>{item.qty}</b>
+          </p>
 
-            <h4>{item.name}</h4>
+          <p>
+            Price: Rs. {item.price * item.qty}
+          </p>
 
-            <div className="qty-controls">
-
-              <button
-                onClick={() =>
-                  dispatch(
-                    decreaseQty(item._id)
-                  )
-                }
-              >
-                -
-              </button>
-
-              <span>{item.qty}</span>
-
-              <button
-                onClick={() =>
-                  dispatch(
-                    increaseQty(item._id)
-                  )
-                }
-              >
-                +
-              </button>
-
-            </div>
-
-          </div>
-
-          <div>
-
-            <h5>
-              Rs. {item.price * item.qty}
-            </h5>
-
+          {/* QUANTITY CONTROLS */}
+          <div className="mb-2">
             <button
-              className="remove-btn"
+              className="btn btn-warning me-2"
               onClick={() =>
-                dispatch(
-                  removeFromCart(item._id)
-                )
+                decreaseItemHandler(item)
               }
+              disabled={item.qty <= 1}
             >
-              Remove
+              - Remove 1
             </button>
 
+            <button
+              className="btn btn-danger"
+              onClick={() =>
+                removeItemHandler(item)
+              }
+            >
+              Remove All
+            </button>
           </div>
-
         </div>
       ))}
 
-      <div className="cart-summary">
+      <h3>
+        Total: Rs. {totalPrice}
+      </h3>
 
-        <h3>Total: Rs. {totalPrice}</h3>
-
-        <Link
-          to="/checkout"
-          className="checkout-btn"
-        >
-          Checkout
-        </Link>
-
-      </div>
-
+      <Link
+        to="/checkout"
+        className="btn btn-success"
+      >
+        Proceed to Checkout
+      </Link>
     </div>
   );
 };

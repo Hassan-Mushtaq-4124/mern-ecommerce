@@ -7,91 +7,130 @@ import { toast } from "react-toastify";
 
 const ProductDetails = () => {
   const { id } = useParams();
+  const [product, setProduct] = useState(null);
 
-  const [product, setProduct] = useState({});
-  const [rating, setRating] = useState(0);
+  // ⭐ NEW: quantity state
+  const [qty, setQty] = useState(1);
 
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const fetchProduct = async () => {
-      const { data } = await API.get("/products");
+    fetchProduct();
+  }, []);
 
-      const singleProduct = data.find(
-        (p) => p._id === id
+  const fetchProduct = async () => {
+    const { data } = await API.get(`/products/${id}`);
+    setProduct(data);
+  };
+
+  // ⭐ INCREASE QTY
+  const increaseQty = () => {
+    if (qty < product.stock) {
+      setQty(qty + 1);
+    }
+  };
+
+  // ⭐ DECREASE QTY
+  const decreaseQty = () => {
+    if (qty > 1) {
+      setQty(qty - 1);
+    }
+  };
+
+  const addToCartHandler = async () => {
+    try {
+      if (product.stock <= 0) {
+        toast.error("Out of stock");
+        return;
+      }
+
+      // reduce stock by selected qty
+      const { data } = await API.put(
+        `/products/reduce/${product._id}`,
+        { qty }
       );
 
-      setProduct(singleProduct);
-    };
+      setProduct(data);
 
-    fetchProduct();
-  }, [id]);
+      // ⭐ send qty to cart
+      dispatch(addToCart({ ...data, qty }));
 
-  const addToCartHandler = () => {
-    dispatch(addToCart(product));
-    toast.success("Added to cart!");
+      toast.success(`${qty} item(s) added to cart!`);
+
+      setQty(1); // reset after adding
+    } catch (err) {
+      toast.error("Error occurred");
+    }
   };
+
+  if (!product) return <h3>Loading...</h3>;
 
   return (
     <div className="container mt-5">
       <div className="row">
 
+        {/* IMAGE */}
         <div className="col-md-6">
-          <img
-            src={product.image}
-            className="img-fluid rounded"
-          />
+          <img src={product.image} className="img-fluid" />
         </div>
 
+        {/* DETAILS */}
         <div className="col-md-6">
           <h2>{product.name}</h2>
-
           <p>{product.description}</p>
+          <h4>Rs {product.price}</h4>
 
-          <h4>Rs. {product.price}</h4>
+          {/* STOCK */}
+          {product.stock > 0 ? (
+            <h5 style={{ color: "green" }}>
+              In Stock ({product.stock})
+            </h5>
+          ) : (
+            <h5 style={{ color: "red" }}>
+              Out of Stock
+            </h5>
+          )}
 
-          <p>
-            ⭐ {product.rating || 0} (
-            {product.numReviews || 0})
-          </p>
+          {/* ⭐ QUANTITY SELECTOR (NEW UI - minimal change) */}
+          {product.stock > 0 && (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+                marginBottom: "15px",
+              }}
+            >
+              <button
+                className="btn btn-secondary"
+                onClick={decreaseQty}
+              >
+                -
+              </button>
 
+              <span style={{ fontSize: "18px" }}>
+                {qty}
+              </span>
+
+              <button
+                className="btn btn-secondary"
+                onClick={increaseQty}
+              >
+                +
+              </button>
+            </div>
+          )}
+
+          {/* ADD TO CART */}
           <button
             className="btn btn-success w-100"
+            disabled={product.stock === 0}
             onClick={addToCartHandler}
           >
-            Add To Cart
+            {product.stock === 0
+              ? "Out of Stock"
+              : `Add ${qty} To Cart`}
           </button>
-
-          {/* Rating */}
-          <div className="mt-4">
-            <h5>Rate Product</h5>
-
-            <select
-              className="form-control"
-              onChange={(e) =>
-                setRating(e.target.value)
-              }
-            >
-              <option value="0">Select</option>
-              <option value="1">1 ⭐</option>
-              <option value="2">2 ⭐</option>
-              <option value="3">3 ⭐</option>
-              <option value="4">4 ⭐</option>
-              <option value="5">5 ⭐</option>
-            </select>
-
-            <button
-              className="btn btn-warning mt-2"
-              onClick={() =>
-                toast.success(
-                  `You rated ${rating} stars`
-                )
-              }
-            >
-              Submit Rating
-            </button>
-          </div>
-
         </div>
 
       </div>

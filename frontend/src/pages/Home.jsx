@@ -13,10 +13,10 @@ const Home = () => {
     fetchProducts();
   }, []);
 
-  const fetchProducts = async () => {
-    const { data } = await API.get("/products");
-    setProducts(data);
-  };
+ const fetchProducts = async () => {
+  const { data } = await API.get("/products");
+  setProducts(data);
+};
 
   // FILTER
   const filteredProducts = products
