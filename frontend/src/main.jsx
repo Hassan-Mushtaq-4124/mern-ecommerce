@@ -10,9 +10,13 @@ import store from "./app/store";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./index.css";
 
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 ReactDOM.createRoot(document.getElementById("root")).render(
   <Provider store={store}>
     <BrowserRouter>
+      <ToastContainer position="top-right" />
       <App />
     </BrowserRouter>
   </Provider>

@@ -1,74 +1,98 @@
 import { useEffect, useState } from "react";
 import API from "../services/api";
-
-import Hero from "../components/Hero";
-import Banner from "../components/Banner";
-import Categories from "../components/Categories";
 import ProductCard from "../components/ProductCard";
-import Loader from "../components/Loader";
 
 const Home = () => {
   const [products, setProducts] = useState([]);
+
   const [search, setSearch] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [category, setCategory] = useState("");
+  const [sort, setSort] = useState("");
 
   useEffect(() => {
     fetchProducts();
   }, []);
 
   const fetchProducts = async () => {
-    try {
-      const { data } = await API.get("/products");
-
-      setProducts(data);
-      setLoading(false);
-    } catch (error) {
-      console.log(error);
-    }
+    const { data } = await API.get("/products");
+    setProducts(data);
   };
 
-  const filteredProducts = products.filter(
-    (product) =>
-      product.name
-        .toLowerCase()
-        .includes(search.toLowerCase())
+  // FILTER
+  const filteredProducts = products
+    .filter((p) =>
+      p.name.toLowerCase().includes(search.toLowerCase())
+    )
+    .filter((p) =>
+      category ? p.category === category : true
+    );
+
+  // SORT
+  const sortedProducts = [...filteredProducts].sort(
+    (a, b) => {
+      if (sort === "low") return a.price - b.price;
+      if (sort === "high") return b.price - a.price;
+      return 0;
+    }
   );
 
   return (
-    <>
-      <Hero />
+    <div className="container mt-4">
 
-      <Banner />
+      {/* SEARCH */}
+      <input
+        type="text"
+        placeholder="Search..."
+        className="form-control mb-3"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
 
-      <div className="container py-5">
+      {/* CATEGORY */}
+      <select
+        className="form-control mb-3"
+        onChange={(e) =>
+          setCategory(e.target.value)
+        }
+      >
+        <option value="">All Categories</option>
+        <option value="Electronics">
+          Electronics
+        </option>
+        <option value="Accessories">
+          Accessories
+        </option>
+      </select>
 
-        <Categories />
+      {/* SORT */}
+      <select
+        className="form-control mb-4"
+        onChange={(e) =>
+          setSort(e.target.value)
+        }
+      >
+        <option value="">Sort By</option>
+        <option value="low">
+          Price: Low → High
+        </option>
+        <option value="high">
+          Price: High → Low
+        </option>
+      </select>
 
-        <div className="search-box">
-          <input
-            type="text"
-            placeholder="Search products..."
-            value={search}
-            onChange={(e) =>
-              setSearch(e.target.value)
-            }
-          />
-        </div>
-
-        {loading ? (
-          <Loader />
-        ) : (
-          <div className="products-grid">
-            {filteredProducts.map((product) => (
-              <ProductCard
-                key={product._id}
-                product={product}
-              />
-            ))}
+      {/* PRODUCTS */}
+      <div className="row">
+        {sortedProducts.map((product) => (
+          <div
+            className="col-md-4 mb-4"
+            key={product._id}
+          >
+            <ProductCard product={product} />
           </div>
-        )}
+        ))}
       </div>
-    </>
+
+    </div>
   );
 };
 

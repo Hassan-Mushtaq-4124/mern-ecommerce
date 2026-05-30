@@ -338,3 +338,26 @@ body {
   border-radius: 10px;
   font-weight: 600;
 }
+
+body {
+  background: #f5f7fb;
+}
+
+.product-card {
+  border-radius: 12px;
+  overflow: hidden;
+  transition: 0.3s;
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+}
+
+select,
+input {
+  border-radius: 10px !important;
+}
+
+button {
+  border-radius: 10px !important;
+}

@@ -1,36 +1,50 @@
 import { useDispatch } from "react-redux";
 import { addToCart } from "../features/cart/cartSlice";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const ProductCard = ({ product }) => {
   const dispatch = useDispatch();
 
+  const addToCartHandler = () => {
+    dispatch(addToCart(product));
+    toast.success("Added to cart!");
+  };
+
   return (
-    
-    <div className="product-card">
-      <div className="product-image">
+    <div className="card product-card">
+
+      <Link to={`/product/${product._id}`}>
         <img
           src={product.image}
-          alt={product.name}
+          className="card-img-top"
         />
-      </div>
+      </Link>
 
-      <div className="product-info">
-        <h4>{product.name}</h4>
+      <div className="card-body">
+
+        <h5>
+          <Link to={`/product/${product._id}`}>
+            {product.name}
+          </Link>
+        </h5>
 
         <p>{product.description}</p>
 
-        <div className="product-bottom">
-          <h5>Rs. {product.price}</h5>
+        <p>
+          ⭐ {product.rating || 0} (
+          {product.numReviews || 0})
+        </p>
 
-          <button
-            onClick={() =>
-              dispatch(addToCart(product))
-            }
-          >
-            Add To Cart
-          </button>
-        </div>
+        <h6>Rs. {product.price}</h6>
+
+        <button
+          className="btn btn-primary w-100"
+          onClick={addToCartHandler}
+        >
+          Add To Cart
+        </button>
+
       </div>
     </div>
   );
