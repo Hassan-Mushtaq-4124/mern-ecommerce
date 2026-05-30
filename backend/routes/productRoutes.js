@@ -6,16 +6,18 @@ const {
   getProductById,
   reduceStock,
   restoreStock,
-  updateStock, // ⭐ ADD THIS LINE
+  updateStock,
 } = require("../controllers/productController");
 
+// PUBLIC
 router.get("/", getProducts);
 router.get("/:id", getProductById);
 
+// STOCK SYSTEM
 router.put("/reduce/:id", reduceStock);
 router.put("/restore/:id", restoreStock);
 
-// ⭐ NEW STOCK CONTROL ROUTE
+// ⭐ ADMIN STOCK UPDATE
 router.put("/update-stock/:id", updateStock);
 
 module.exports = router;

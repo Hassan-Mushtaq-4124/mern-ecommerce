@@ -6,7 +6,6 @@ const getProducts = async (req, res) => {
   try {
     let products = await Product.find();
 
-    // seed only once
     if (products.length === 0) {
       await Product.insertMany(productsData);
       products = await Product.find();
@@ -28,20 +27,17 @@ const getProductById = async (req, res) => {
   }
 };
 
-// REDUCE STOCK (ADD TO CART)
+// REDUCE STOCK
 const reduceStock = async (req, res) => {
   try {
     const { qty = 1 } = req.body;
 
     const product = await Product.findById(req.params.id);
 
-    if (!product) {
-      return res.status(404).json({ message: "Product not found" });
-    }
+    if (!product) return res.status(404).json({ message: "Not found" });
 
-    if (product.stock < qty) {
+    if (product.stock < qty)
       return res.status(400).json({ message: "Not enough stock" });
-    }
 
     product.stock -= qty;
     await product.save();
@@ -52,16 +48,14 @@ const reduceStock = async (req, res) => {
   }
 };
 
-// RESTORE STOCK (REMOVE FROM CART)
+// RESTORE STOCK
 const restoreStock = async (req, res) => {
   try {
     const { qty = 1 } = req.body;
 
     const product = await Product.findById(req.params.id);
 
-    if (!product) {
-      return res.status(404).json({ message: "Product not found" });
-    }
+    if (!product) return res.status(404).json({ message: "Not found" });
 
     product.stock += qty;
     await product.save();
@@ -72,19 +66,17 @@ const restoreStock = async (req, res) => {
   }
 };
 
+// ⭐ ADMIN: UPDATE STOCK DIRECTLY
 const updateStock = async (req, res) => {
   try {
-    const { change } = req.body; // +1 or -1
+    const { stock } = req.body;
+
     const product = await Product.findById(req.params.id);
 
-    if (!product) {
-      return res.status(404).json({ message: "Not found" });
-    }
+    if (!product)
+      return res.status(404).json({ message: "Product not found" });
 
-    product.stock += change;
-
-    if (product.stock < 0) product.stock = 0;
-
+    product.stock = stock;
     await product.save();
 
     res.json(product);
@@ -98,5 +90,5 @@ module.exports = {
   getProductById,
   reduceStock,
   restoreStock,
-  updateStock, 
+  updateStock,
 };

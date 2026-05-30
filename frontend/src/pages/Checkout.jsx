@@ -1,34 +1,45 @@
 import { useState } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import API from "../services/api";
 import { useNavigate } from "react-router-dom";
+import { clearCart } from "../features/cart/cartSlice";
+import { toast } from "react-toastify";
 
 const Checkout = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const cartItems = useSelector(
     (state) => state.cart.cartItems
   );
 
-  const [customerName, setCustomerName] =
-    useState("");
-
+  const [customerName, setCustomerName] = useState("");
   const [address, setAddress] = useState("");
 
   const totalPrice = cartItems.reduce(
-    (acc, item) => acc + item.price * item.qty,
+    (acc, item) =>
+      acc + item.price * item.qty,
     0
   );
 
   const placeOrder = async () => {
-    await API.post("/orders", {
-      customerName,
-      address,
-      items: cartItems,
-      totalPrice,
-    });
+    try {
+      await API.post("/orders", {
+        customerName,
+        address,
+        items: cartItems,
+        totalPrice,
+      });
 
-    navigate("/success");
+      // ⭐ CLEAR CART AFTER SUCCESS
+      dispatch(clearCart());
+
+      toast.success("Order placed successfully!");
+
+      navigate("/success");
+    } catch (err) {
+      toast.error("Order failed");
+    }
   };
 
   return (
@@ -57,6 +68,7 @@ const Checkout = () => {
       <button
         className="btn btn-primary"
         onClick={placeOrder}
+        disabled={cartItems.length === 0}
       >
         Place Order
       </button>

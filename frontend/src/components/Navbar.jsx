@@ -86,6 +86,10 @@ const Navbar = () => {
             </span>
           </Link>
 
+          <Link className="btn btn-info ms-2" to="/admin">
+            Admin
+          </Link>
+
         </div>
 
       </div>

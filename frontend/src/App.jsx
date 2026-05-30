@@ -12,6 +12,7 @@ import Success from "./pages/Success";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ProductDetails from "./pages/ProductDetails";
+import AdminPanel from "./pages/AdminPanel";
 
 function App() {
 
@@ -65,6 +66,8 @@ function App() {
         />
 
         <Route path="/product/:id" element={<ProductDetails />} />
+
+        <Route path="/admin" element={<AdminPanel />} />
 
       </Routes>
 

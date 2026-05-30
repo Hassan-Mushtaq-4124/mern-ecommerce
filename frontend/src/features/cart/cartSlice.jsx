@@ -9,7 +9,6 @@ const cartSlice = createSlice({
   initialState,
 
   reducers: {
-    // ADD TO CART (MERGE QUANTITY PROPERLY)
     addToCart: (state, action) => {
       const item = action.payload;
 
@@ -18,7 +17,7 @@ const cartSlice = createSlice({
       );
 
       if (exist) {
-        exist.qty += item.qty; // IMPORTANT FIX
+        exist.qty += item.qty;
       } else {
         state.cartItems.push({
           ...item,
@@ -27,14 +26,12 @@ const cartSlice = createSlice({
       }
     },
 
-    // REMOVE FULL ITEM
     removeFromCart: (state, action) => {
       state.cartItems = state.cartItems.filter(
         (x) => x._id !== action.payload
       );
     },
 
-    // DECREASE SINGLE QUANTITY (NEW FEATURE)
     decreaseQty: (state, action) => {
       const item = state.cartItems.find(
         (x) => x._id === action.payload
@@ -50,6 +47,11 @@ const cartSlice = createSlice({
         }
       }
     },
+
+    // ⭐ IMPORTANT FIX
+    clearCart: (state) => {
+      state.cartItems = [];
+    },
   },
 });
 
@@ -57,6 +59,7 @@ export const {
   addToCart,
   removeFromCart,
   decreaseQty,
+  clearCart,
 } = cartSlice.actions;
 
 export default cartSlice.reducer;
