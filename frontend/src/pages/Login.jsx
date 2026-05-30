@@ -1,86 +1,123 @@
 import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 import { useDispatch } from "react-redux";
 
-import { useNavigate, Link } from "react-router-dom";
+import API from "../services/api";
 
 import {
-  loginSuccess,
+  setCredentials,
 } from "../features/auth/authSlice";
 
 const Login = () => {
 
-  const dispatch = useDispatch();
-
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState("");
+  const dispatch = useDispatch();
+
+  const [email, setEmail] =
+    useState("");
 
   const [password, setPassword] =
     useState("");
 
-  const submitHandler = (e) => {
+  const [error, setError] =
+    useState("");
+
+  const submitHandler = async (e) => {
 
     e.preventDefault();
 
-    const fakeUser = {
-      email,
-      name: "Demo User",
-    };
+    try {
 
-    dispatch(loginSuccess(fakeUser));
+      const { data } =
+        await API.post(
+          "/users/login",
+          {
+            email,
+            password,
+          }
+        );
 
-    navigate("/");
+      dispatch(
+        setCredentials(data)
+      );
+
+      navigate("/");
+
+    } catch (err) {
+
+      setError(
+        err.response?.data?.message ||
+        "Login failed"
+      );
+    }
   };
 
   return (
-
     <div className="auth-page">
 
       <div className="auth-card">
 
         <h2>Login</h2>
 
-        <form onSubmit={submitHandler}>
+        {error && (
+          <p style={{
+            color:"red"
+          }}>
+            {error}
+          </p>
+        )}
+
+        <form
+          onSubmit={
+            submitHandler
+          }
+        >
 
           <input
             type="email"
             placeholder="Email"
-            required
             value={email}
-            onChange={(e) =>
-              setEmail(e.target.value)
+            onChange={(e)=>
+              setEmail(
+                e.target.value
+              )
             }
+            required
           />
 
           <input
             type="password"
             placeholder="Password"
-            required
             value={password}
-            onChange={(e) =>
-              setPassword(e.target.value)
+            onChange={(e)=>
+              setPassword(
+                e.target.value
+              )
             }
+            required
           />
 
-          <button type="submit">
+          <button
+            type="submit"
+          >
             Login
           </button>
 
         </form>
 
-        <p className="mt-3">
+        <p>
+          Don't have account?
 
-          Don't have an account?
-
-          <Link to="/register">
+          <Link
+            to="/register"
+          >
             Register
           </Link>
-
         </p>
 
       </div>
-
     </div>
   );
 };

@@ -11,6 +11,7 @@ import Checkout from "./pages/Checkout";
 import Success from "./pages/Success";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import ProductDetails from "./pages/ProductDetails";
 
 function App() {
 
@@ -62,6 +63,8 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        <Route path="/product/:id" element={<ProductDetails />} />
 
       </Routes>
 
