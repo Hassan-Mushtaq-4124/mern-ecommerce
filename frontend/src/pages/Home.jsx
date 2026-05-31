@@ -4,85 +4,92 @@ import ProductCard from "../components/ProductCard";
 
 const Home = () => {
   const [products, setProducts] = useState([]);
-
   const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("");
+
+  // ⭐ NEW CATEGORY STATE
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("All");
+
   const [sort, setSort] = useState("");
 
   useEffect(() => {
     fetchProducts();
+    fetchCategories();
   }, []);
 
- const fetchProducts = async () => {
-  const { data } = await API.get("/products");
-  setProducts(data);
-};
+  const fetchProducts = async () => {
+    const { data } = await API.get("/products");
+    setProducts(data);
+  };
 
-  // FILTER
+  const fetchCategories = async () => {
+    const { data } = await API.get("/products/categories/list");
+    setCategories(data);
+  };
+
+  // ⭐ FILTER LOGIC (EXTENDS EXISTING SEARCH + SORT)
   const filteredProducts = products
-    .filter((p) =>
-      p.name.toLowerCase().includes(search.toLowerCase())
+    .filter((product) =>
+      product.name.toLowerCase().includes(search.toLowerCase())
     )
-    .filter((p) =>
-      category ? p.category === category : true
-    );
-
-  // SORT
-  const sortedProducts = [...filteredProducts].sort(
-    (a, b) => {
+    .filter((product) =>
+      selectedCategory === "All"
+        ? true
+        : product.category === selectedCategory
+    )
+    .sort((a, b) => {
       if (sort === "low") return a.price - b.price;
       if (sort === "high") return b.price - a.price;
       return 0;
-    }
-  );
+    });
 
   return (
     <div className="container mt-4">
 
-      {/* SEARCH */}
+      {/* SEARCH (UNCHANGED) */}
       <input
         type="text"
-        placeholder="Search..."
+        placeholder="Search products..."
         className="form-control mb-3"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
       />
 
-      {/* CATEGORY */}
-      <select
-        className="form-control mb-3"
-        onChange={(e) =>
-          setCategory(e.target.value)
-        }
-      >
-        <option value="">All Categories</option>
-        <option value="Electronics">
-          Electronics
-        </option>
-        <option value="Accessories">
-          Accessories
-        </option>
-      </select>
+      {/* ⭐ CATEGORY DROPDOWN (NEW BUT CLEAN) */}
+      <div className="mb-3 d-flex gap-2">
 
-      {/* SORT */}
-      <select
-        className="form-control mb-4"
-        onChange={(e) =>
-          setSort(e.target.value)
-        }
-      >
-        <option value="">Sort By</option>
-        <option value="low">
-          Price: Low → High
-        </option>
-        <option value="high">
-          Price: High → Low
-        </option>
-      </select>
+        <select
+          className="form-control"
+          value={selectedCategory}
+          onChange={(e) =>
+            setSelectedCategory(e.target.value)
+          }
+        >
+          <option value="All">All Categories</option>
+
+          {categories.map((cat, index) => (
+            <option key={index} value={cat}>
+              {cat}
+            </option>
+          ))}
+        </select>
+
+        {/* SORTING (UNCHANGED LOGIC EXTENSION) */}
+        <select
+          className="form-control"
+          value={sort}
+          onChange={(e) => setSort(e.target.value)}
+        >
+          <option value="">Sort By</option>
+          <option value="low">Low to High</option>
+          <option value="high">High to Low</option>
+        </select>
+
+      </div>
 
       {/* PRODUCTS */}
       <div className="row">
-        {sortedProducts.map((product) => (
+        {filteredProducts.map((product) => (
           <div
             className="col-md-4 mb-4"
             key={product._id}
@@ -91,7 +98,6 @@ const Home = () => {
           </div>
         ))}
       </div>
-
     </div>
   );
 };

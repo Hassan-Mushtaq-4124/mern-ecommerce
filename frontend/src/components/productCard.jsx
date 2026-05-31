@@ -1,31 +1,29 @@
 import { useDispatch } from "react-redux";
 import { addToCart } from "../features/cart/cartSlice";
-import { Link } from "react-router-dom";
+import API from "../services/api";
 import { toast } from "react-toastify";
+import { Link } from "react-router-dom";
 
 const ProductCard = ({ product }) => {
   const dispatch = useDispatch();
 
-const addToCartHandler = async () => {
-  try {
-    if (product.stock <= 0) {
-      toast.error("Out of stock!");
-      return;
+  const addToCartHandler = async () => {
+    try {
+      const qty = 1;
+
+      // 🔥 FIX: send qty properly to backend
+      await API.put(`/products/reduce/${product._id}`, {
+        qty,
+      });
+
+      dispatch(addToCart({ ...product, qty }));
+
+      toast.success("Added to cart");
+    } catch (err) {
+      toast.error("Error updating stock");
+      console.log(err.response?.data || err.message);
     }
-
-    await API.put(`/products/reduce/${product._id}`);
-
-    dispatch(addToCart(product));
-
-    toast.success("Added to cart!");
-
-    // optional: reload page data sync (simple solution)
-    window.location.reload();
-
-  } catch (error) {
-    toast.error("Error updating stock");
-  }
-};
+  };
 
   return (
     <div className="card product-card">

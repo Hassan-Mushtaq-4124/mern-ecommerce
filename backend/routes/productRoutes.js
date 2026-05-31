@@ -7,17 +7,22 @@ const {
   reduceStock,
   restoreStock,
   updateStock,
+  createProduct,
+  deleteProduct,
+  getCategories,
 } = require("../controllers/productController");
 
-// PUBLIC
 router.get("/", getProducts);
 router.get("/:id", getProductById);
 
-// STOCK SYSTEM
 router.put("/reduce/:id", reduceStock);
 router.put("/restore/:id", restoreStock);
 
-// ⭐ ADMIN STOCK UPDATE
 router.put("/update-stock/:id", updateStock);
+
+router.post("/create", createProduct);
+router.delete("/delete/:id", deleteProduct);
+
+router.get("/categories/list", getCategories);
 
 module.exports = router;

@@ -84,11 +84,50 @@ const updateStock = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+const createProduct = async (req, res) => {
+  try {
+    const { name, price, category, image, description, stock } = req.body;
 
+    const product = new Product({
+      name,
+      price,
+      category,
+      image,
+      description,
+      stock: stock || 10,
+    });
+
+    await product.save();
+
+    res.status(201).json(product);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+const deleteProduct = async (req, res) => {
+  try {
+    await Product.findByIdAndDelete(req.params.id);
+    res.json({ message: "Product deleted" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+const getCategories = async (req, res) => {
+  try {
+    const categories = await Product.distinct("category");
+    res.json(categories);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
 module.exports = {
   getProducts,
   getProductById,
   reduceStock,
   restoreStock,
   updateStock,
+  createProduct,
+  deleteProduct,
+  getCategories,
 };
